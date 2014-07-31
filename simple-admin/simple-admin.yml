@@ -21,6 +21,11 @@ parameters:
     description: the id of the public-floating subnet
     default: 85abca57-4d2d-43b5-bcd3-eee47f619af8
 
+  image_id:
+    type: string
+    description: the id of the image to use for the admin host
+    default: da8ed61e-2023-40d0-bb10-d566c372c655
+
 resources:
   network:
     type: OS::Neutron::Net
@@ -77,7 +82,7 @@ resources:
     type: OS::Nova::Server
     properties:
       name: admin
-      image: 54bc392f-7489-4071-84c8-2753e7ffec54
+      image: { get_param: image_id }
       flavor: GP-Small
       key_name: { get_param: key_name }
       metadata: { "group": "admin" }
