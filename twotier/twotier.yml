@@ -21,21 +21,40 @@ parameters:
     default: 536ad571-8864-4a7a-8ead-9da3a5db57a5
 
 resources:
-  network:
-    type: OS::Neutron::Net
-    properties:
-      name: app-network
+#  network:
+#    type: OS::Neutron::Net
+#    properties:
+#      name: app-network
+#
+#  subnet:
+#    type: OS::Neutron::Subnet
+#    properties:
+#      allocation_pools: # requires yaml lists
+#        - start: 192.168.10.100
+#          end: 192.168.10.200
+#      cidr: 192.168.10.0/24
+#      enable_dhcp: Yes
+#      name: app-subnet
+#      network_id: {get_resource: network}
 
-  subnet:
-    type: OS::Neutron::Subnet
-    properties:
-      allocation_pools: # requires yaml lists
-        - start: 192.168.10.100
-          end: 192.168.10.200
-      cidr: 192.168.10.0/24
-      enable_dhcp: Yes
-      name: app-subnet
-      network_id: {get_resource: network}
+# Add Security Group Rule for port 9000!
+
+# yum -y install wget unzip
+# cd /tmp
+# wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+# mv -n epel-release-6-8.noarch.rpm /usr/local/src
+# rpm -ivh /usr/local/src/epel-release-6-8.noarch.rpm
+# export http_proxy=http://proxy-wsa.esl.cisco.com:80
+# export https_proxy=http://proxy-wsa.esl.cisco.com:80
+# yum -y update
+# unset http_proxy https_proxy
+# wget http://aer01-vfiler01a-web.cisco.com/users-t/tdeckers/published/files/jdk-7u55-linux-x64.gz
+# tar -zxvf jdk-7u55-linux-x64.gz
+# mv /tmp/jdk1.7.0_55/ /opt
+# ln -s /opt/jdk1.7.0_55/ /opt/jdk
+# wget http://aer01-vfiler01a-web.cisco.com/users-t/tdeckers/published/files/helloworld-1.0-SNAPSHOT.zip
+# unzip -d /opt helloworld-1.0-SNAPSHOT.zip
+# ln -s /opt/helloworld-1.0-SNAPSHOT /opt/helloworld
 
   app1:
     type: OS::Nova::Server
@@ -46,7 +65,7 @@ resources:
       key_name: { get_param: key_name }
       metadata: { "group": "app" }
       networks: 
-      - { network: { get_resource: network }, uuid: { get_resource: network  } }
+      - { network: { get_param: net_id }, uuid: { get_param: net_id  } }
 
   app2:
     type: OS::Nova::Server
@@ -57,7 +76,7 @@ resources:
       key_name: { get_param: key_name }
       metadata: { "group": "app" }
       networks: 
-      - { network: { get_resource: network }, uuid: { get_resource: network  } }
+      - { network: { get_param: net_id }, uuid: { get_param: net_id  } }
 
   web1:
     type: OS::Nova::Server
@@ -68,7 +87,7 @@ resources:
       key_name: { get_param: key_name }
       metadata: { "group": "web" }
       networks: 
-      - { network: { get_resource: network }, uuid: { get_resource: network  } }
+      - { network: { get_param: net_id }, uuid: { get_param: net_id  } }
     depends_on: [ app1, app2 ]
 
   web2:
@@ -80,5 +99,5 @@ resources:
       key_name: { get_param: key_name }
       metadata: { "group": "web" }
       networks: 
-      - { network: { get_resource: network }, uuid: { get_resource: network  } }
+      - { network: { get_param: net_id }, uuid: { get_param: net_id  } }
     depends_on: [ app1, app2 ]
